@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Optional, List
 from database import Base
 from enum import Enum as PyEnum
+from passlib.hash import bcrypt
 
 
 class StatusChoices(str, PyEnum):
@@ -30,12 +31,24 @@ class UserProfile(Base):
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     age: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     status: Mapped[StatusChoices] = mapped_column(Enum(StatusChoices), nullable=False, default=StatusChoices.pro)
+    tokens: Mapped[List['RefreshToken']] = relationship('RefreshToken', back_populates='user')
+
 
     def set_password(self, password: str):
         self.hashed_password = bcrypt.hash(password)
 
     def check_password(self, password: str):
         return bcrypt.verify(password, self.hashed_password)
+
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_token"
+
+    id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
+    token: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user_profile.id'))
+    user: Mapped['UserProfile'] = relationship('UserProfile', back_populates='tokens')
 
 
 class Country(Base):
@@ -49,6 +62,9 @@ class Country(Base):
         secondary='movie_country_association',
         back_populates="countries"  # Исправлено на 'countries'
     )
+
+    def __repr__(self):
+        return self.country_name
 
 
 class Director(Base):
@@ -220,3 +236,5 @@ class History(Base):
     user: Mapped[int] = mapped_column(ForeignKey('user_profile.id'))
     movie: Mapped[int] = mapped_column(ForeignKey('movie.id'))
     viewed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+

@@ -1,5 +1,6 @@
 from sqladmin import Admin, ModelView
-from models import UserProfile, Country, Director, Genre, Actor, Movie
+from models import (UserProfile, Country, Director,
+                    Genre, Actor, Movie, MovieLanguages, Moments, Rating, Favorite, FavoriteMovie, History)
 from database import engine
 
 
@@ -39,6 +40,42 @@ class MovieAdmin(ModelView, model=Movie):
     name_plural = 'Movies'
 
 
+class MovieLanguagesAdmin(ModelView, model=MovieLanguages):
+    column_list = [MovieLanguages.id, MovieLanguages.language]
+    name = 'MovieLanguage'
+    name_plural = 'MovieLanguages'
+
+
+class MomentsAdmin(ModelView, model=Moments):
+    column_list = [Moments.id, Moments.moment_name]
+    name = 'Moment'
+    name_plural = 'Moments'
+
+
+class RatingAdmin(ModelView, model=Rating):
+    column_list = [Rating.id, Rating.created_date]
+    name = 'Rating'
+    name_plural = 'Ratings'
+
+
+class FavoriteAdmin(ModelView, model=Favorite):
+    column_list = [Favorite.id, Favorite.created_date]
+    name = 'Favorite'
+    name_plural = 'Favorites'
+
+
+class FavoriteMovieAdmin(ModelView, model=FavoriteMovie):
+    column_list = [FavoriteMovie.id]
+    name = 'FavoriteMovie'
+    name_plural = 'FavoriteMovies'
+
+
+class HistoryAdmin(ModelView, model=History):
+    column_list = [History.id]
+    name = 'History'
+    name_plural = 'Histories'
+
+
 def create_admin(movie_app):
     admin = Admin(movie_app, engine)
     admin.add_view(UserProfileAdmin)
@@ -47,5 +84,11 @@ def create_admin(movie_app):
     admin.add_view(GenreAdmin)
     admin.add_view(ActorAdmin)
     admin.add_view(MovieAdmin)
+    admin.add_view(MovieLanguagesAdmin)
+    admin.add_view(MomentsAdmin)
+    admin.add_view(RatingAdmin)
+    admin.add_view(FavoriteAdmin)
+    admin.add_view(FavoriteMovieAdmin)
+    admin.add_view(HistoryAdmin)
 
     return admin
